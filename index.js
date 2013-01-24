@@ -30,8 +30,12 @@ function Delay (context, type, delay, feedback) {
   this[["_routeNormal", "_routeInverted", "_routePingPong"][type || 0]]();
 
   // Defaults
-  for (var prop in this.meta) {
-    this[prop] = this.meta[prop].defaultValue;
+  this.delay    = delay     || this.meta.delay.defaultValue;
+  this.feedback = feedback  || this.meta.delay.defaultValue;
+
+  // Avoid positive feedback
+  if (this.feedback >= 1.0) {
+    throw new Error("Feedback value will force a positive feedback loop.");
   }
 }
 
