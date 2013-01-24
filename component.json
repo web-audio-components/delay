@@ -1,10 +1,9 @@
 {
   "name": "delay",
-  "repo": "nick-thompson/delay",
-  "description": "Delay effect module for the Web Audio API. Includes normal, inverted, and ping-pong implementations.",
+  "repo": "web-audio-components/delay",
+  "description": "A simple delay/echo effect module for the Web Audio API.",
   "version": "0.0.1",
   "author": "Nick Thompson <ncthom91@gmail.com>",
-  "twitter": "@ncthom91",
   "keywords": [
     "web-audio",
     "delay",
@@ -15,5 +14,8 @@
   "license": "MIT",
   "scripts": [
     "index.js"
-  ]
+  ],
+  "web-audio": {
+    "type": "effect"
+  }
 }
