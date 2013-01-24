@@ -1,45 +1,47 @@
 
-# delay
+# Delay
 
-  Delay effect module for the Web Audio API. Includes normal, inverted, and ping-pong implementations.
+  A simple delay/echo effect module for the Web Audio API.
 
 ## Installation
 
-    $ component install nick-thompson/delay
+    $ component install web-audio-components/delay
+
+## Example Usage
+
+```javascript
+var context = new webkitAudioContext()
+  , Delay = require("delay")
+  , delay = new Delay(context, 2, 1.0, 0.8)
+  , osc = context.createOscillator();
+
+osc.connect(delay.input);
+delay.connect(context.destination);
+osc.start(0);
+```
+
+For further examples, see the test files.
 
 ## API
 
-Delay exports a constructor which takes four arguments: an AudioContext, delay type, `delayTime`, and `feedback`. The returned object supports connections from AudioNodes to its input property, and supports AudioNode prototype methods connect and disconnect.
+### Delay(context, type, delay, feedback)
 
-The delay type parameter can be one of three values,
+Instantiate a Delay effect module. Expects an `AudioContext` as the first
+parameter.
 
-  * *0:* Normal (Default)
-  * *1:* Inverted
-  * *2:* Ping pong
-   
-```javascript
-var context = new webkitAudioContext()
-  , request = new XMLHttpRequest()
-  , Delay = require("delay")
-  , delay = new Delay(context, 2, 1.0, 0.8);
+**Parameters**
 
-request.open("get", "/test/human-voice.wav", true);
-request.responseType = "arraybuffer";
-request.onload = function () {
-  context.decodeAudioData(request.response, function (buffer) {
+- `type` Delay type; 0: normal, 1: inverted, 2: ping pong.
+- `delay` Signal delay time in seconds.
+- `feedback` Signal feedback coefficient.
 
-    var node = context.createBufferSource();
-    node.buffer = buffer;
+### .connect(node)
 
-    node.connect(delay.input);
-    delay.connect(context.destination);
+Connect a Delay module to an `AudioNode`.
 
-    node.start(0);
+### .disconnect()
 
-  });
-};
-request.send();
-```
+Disconnect all outgoing connections from a Delay module.
 
 ## License
 
