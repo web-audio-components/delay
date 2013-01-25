@@ -30,8 +30,10 @@ function Delay (context, type, delay, feedback) {
   this[["_routeNormal", "_routeInverted", "_routePingPong"][type || 0]]();
 
   // Defaults
-  this.delay    = delay     || this.meta.delay.defaultValue;
-  this.feedback = feedback  || this.meta.delay.defaultValue;
+  this._leftDelay.delayTime.value  = delay     || this.meta.delay.defaultValue;
+  this._rightDelay.delayTime.value = delay     || this.meta.delay.defaultValue;
+  this._leftGain.gain.value        = feedback  || this.meta.feedback.defaultValue;
+  this._rightGain.gain.value       = feedback  || this.meta.feedback.defaultValue;
 
   // Avoid positive feedback
   if (this.feedback >= 1.0) {
