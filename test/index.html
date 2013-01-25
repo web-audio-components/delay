@@ -13,7 +13,7 @@
         , Delay = require("delay")
         , delay = new Delay(context, 2, 1.0, 0.8);
 
-      request.open("get", "/test/human-voice.wav", true);
+      request.open("get", "human-voice.wav", true);
       request.responseType = "arraybuffer";
       request.onload = function () {
         context.decodeAudioData(request.response, function (buffer) {
