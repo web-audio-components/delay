@@ -24,18 +24,16 @@ function Delay (context, type, delay, feedback) {
   this.input.connect(this._split);
   this._leftDelay.connect(this._leftGain);
   this._rightDelay.connect(this._rightGain);
-  this._leftGain.connect(this._merge, 0, 0);
-  this._rightGain.connect(this._merge, 0, 1);
   this._merge.connect(this.output);
 
   this._type = ~~type || this.meta.params.type.defaultValue;
   this._route();
 
   // Defaults
-  this._leftDelay.delayTime.value  = delay     || this.meta.delay.defaultValue;
-  this._rightDelay.delayTime.value = delay     || this.meta.delay.defaultValue;
-  this._leftGain.gain.value        = feedback  || this.meta.feedback.defaultValue;
-  this._rightGain.gain.value       = feedback  || this.meta.feedback.defaultValue;
+  this._leftDelay.delayTime.value  = delay     || this.meta.params.delay.defaultValue;
+  this._rightDelay.delayTime.value = delay     || this.meta.params.delay.defaultValue;
+  this._leftGain.gain.value        = feedback  || this.meta.params.feedback.defaultValue;
+  this._rightGain.gain.value       = feedback  || this.meta.params.feedback.defaultValue;
 
   // Avoid positive feedback
   if (this.feedback >= 1.0) {
@@ -80,7 +78,7 @@ Delay.prototype = Object.create(null, {
           max: 2,
           defaultValue: 0,
           type: "int"
-        }
+        },
         delay: {
           min: 0,
           max: 10,
@@ -106,6 +104,8 @@ Delay.prototype = Object.create(null, {
       this._split.disconnect();
       this._leftGain.disconnect();
       this._rightGain.disconnect();
+      this._leftGain.connect(this._merge, 0, 0);
+      this._rightGain.connect(this._merge, 0, 1);
       this[["_routeNormal", "_routeInverted", "_routePingPong"][this._type]]();
     }
   },
@@ -148,7 +148,7 @@ Delay.prototype = Object.create(null, {
       this._type = ~~value;
       this._route();
     }
-  }
+  },
 
   /**
    * Public delay parameter.
