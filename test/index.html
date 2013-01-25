@@ -24,7 +24,7 @@
           node.connect(delay.input);
           delay.connect(context.destination);
 
-          node.start(0);
+          node[node.start ? 'start' : 'noteOn'](0);
 
         });
       };
