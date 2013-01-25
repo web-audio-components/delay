@@ -27,7 +27,9 @@ function Delay (context, type, delay, feedback) {
   this._leftGain.connect(this._merge, 0, 0);
   this._rightGain.connect(this._merge, 0, 1);
   this._merge.connect(this.output);
-  this[["_routeNormal", "_routeInverted", "_routePingPong"][type || 0]]();
+
+  this._type = ~~type || this.meta.params.type.defaultValue;
+  this._route();
 
   // Defaults
   this._leftDelay.delayTime.value  = delay     || this.meta.delay.defaultValue;
@@ -71,17 +73,26 @@ Delay.prototype = Object.create(null, {
 
   meta: {
     value: {
-      delay: {
-        min: 0,
-        max: 10,
-        defaultValue: 1.0,
-        type: "pot"
-      },
-      feedback: {
-        min: 0,
-        max: 1,
-        defaultValue: 0.5,
-        type: "pot"
+      name: "delay",
+      params: {
+        type: {
+          min: 0,
+          max: 2,
+          defaultValue: 0,
+          type: "int"
+        }
+        delay: {
+          min: 0,
+          max: 10,
+          defaultValue: 1.0,
+          type: "float"
+        },
+        feedback: {
+          min: 0,
+          max: 1,
+          defaultValue: 0.5,
+          type: "float"
+        }
       }
     }
   },
@@ -89,6 +100,15 @@ Delay.prototype = Object.create(null, {
   /**
    * Various routing schemes.
    */
+
+  _route: {
+    value: function () {
+      this._split.disconnect();
+      this._leftGain.disconnect();
+      this._rightGain.disconnect();
+      this[["_routeNormal", "_routeInverted", "_routePingPong"][this._type]]();
+    }
+  },
 
   _routeNormal: {
     value: function () {
@@ -116,6 +136,19 @@ Delay.prototype = Object.create(null, {
       this._rightGain.connect(this._leftDelay);
     }
   },
+
+  /**
+   * Public type parameter.
+   */
+
+  type: {
+    enumerable: true,
+    get: function () { return this._type; },
+    set: function (value) {
+      this._type = ~~value;
+      this._route();
+    }
+  }
 
   /**
    * Public delay parameter.
