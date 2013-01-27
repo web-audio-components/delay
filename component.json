@@ -9,7 +9,9 @@
     "delay",
     "effect"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "web-audio-components/filter": "*"
+  },
   "development": {},
   "license": "MIT",
   "scripts": [

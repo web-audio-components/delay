@@ -34,6 +34,7 @@ parameter.
 - `type` Delay type; 0: normal, 1: inverted, 2: ping pong.
 - `delay` Signal delay time in seconds.
 - `feedback` Signal feedback coefficient.
+- `cutoff` Lowpass filter cutoff frequency applied to the delayed signal.
 
 ### .connect(node)
 

@@ -1,5 +1,11 @@
 
 /**
+ * Module depenencies.
+ */
+
+var Filter = require("filter");
+
+/**
  * Simple delay implementation for the Web Audio API.
  *
  * @param {AudioContext} context
@@ -13,7 +19,17 @@ function Delay (context, opts) {
   this.input = context.createGainNode();
   this.output = context.createGainNode();
 
+  // Defaults
   var p = this.meta.params;
+  opts.type       = ~~opts.type   || p.type.defaultValue;
+  opts.delay      = opts.delay    || p.delay.defaultValue;
+  opts.feedback   = opts.feedback || p.feedback.defaultValue;
+  opts.cutoff     = opts.cutoff   || p.cutoff.defaultValue;
+
+  // Avoid positive feedback
+  if (opts.feedback >= 1.0) {
+    throw new Error("Feedback value will force a positive feedback loop.");
+  }
 
   // Internal AudioNodes
   this._split = context.createChannelSplitter(2);
@@ -22,26 +38,24 @@ function Delay (context, opts) {
   this._rightDelay = context.createDelayNode();
   this._leftGain = context.createGainNode();
   this._rightGain = context.createGainNode();
+  this._leftFilter = new Filter.Lowpass(context, { frequency: opts.cutoff });
+  this._rightFilter = new Filter.Lowpass(context, { frequency: opts.cutoff });
+
+  // Assignment
+  this._type = opts.type;
+  this._leftDelay.delayTime.value = opts.delay;
+  this._rightDelay.delayTime.value = opts.delay;
+  this._leftGain.gain.value = opts.feedback;
+  this._rightGain.gain.value = opts.feedback;
 
   // AudioNode graph routing
   this.input.connect(this._split);
   this._leftDelay.connect(this._leftGain);
   this._rightDelay.connect(this._rightGain);
+  this._leftGain.connect(this._leftFilter.input);
+  this._rightGain.connect(this._rightFilter.input);
   this._merge.connect(this.output);
-
-  this._type = ~~opts.type || p.type.defaultValue;
   this._route();
-
-  // Defaults
-  this._leftDelay.delayTime.value  = opts.delay     || p.delay.defaultValue;
-  this._rightDelay.delayTime.value = opts.delay     || p.delay.defaultValue;
-  this._leftGain.gain.value        = opts.feedback  || p.feedback.defaultValue;
-  this._rightGain.gain.value       = opts.feedback  || p.feedback.defaultValue;
-
-  // Avoid positive feedback
-  if (this.feedback >= 1.0) {
-    throw new Error("Feedback value will force a positive feedback loop.");
-  }
 }
 
 Delay.prototype = Object.create(null, {
@@ -93,6 +107,12 @@ Delay.prototype = Object.create(null, {
           max: 1,
           defaultValue: 0.5,
           type: "float"
+        },
+        cutoff: {
+          min: 0,
+          max: 22050,
+          defaultValue: 8000,
+          type: "float"
         }
       }
     }
@@ -105,10 +125,10 @@ Delay.prototype = Object.create(null, {
   _route: {
     value: function () {
       this._split.disconnect();
-      this._leftGain.disconnect();
-      this._rightGain.disconnect();
-      this._leftGain.connect(this._merge, 0, 0);
-      this._rightGain.connect(this._merge, 0, 1);
+      this._leftFilter.disconnect();
+      this._rightFilter.disconnect();
+      this._leftFilter.connect(this._merge, 0, 0);
+      this._rightFilter.connect(this._merge, 0, 1);
       this[["_routeNormal", "_routeInverted", "_routePingPong"][this._type]]();
     }
   },
@@ -117,8 +137,8 @@ Delay.prototype = Object.create(null, {
     value: function () {
       this._split.connect(this._leftDelay, 0);
       this._split.connect(this._rightDelay, 1);
-      this._leftGain.connect(this._leftDelay);
-      this._rightGain.connect(this._rightDelay);
+      this._leftFilter.connect(this._leftDelay);
+      this._rightFilter.connect(this._rightDelay);
     }
   },
 
@@ -126,8 +146,8 @@ Delay.prototype = Object.create(null, {
     value: function () {
       this._split.connect(this._leftDelay, 1);
       this._split.connect(this._rightDelay, 0);
-      this._leftGain.connect(this._leftDelay);
-      this._rightGain.connect(this._rightDelay);
+      this._leftFilter.connect(this._leftDelay);
+      this._rightFilter.connect(this._rightDelay);
     }
   },
 
@@ -135,13 +155,13 @@ Delay.prototype = Object.create(null, {
     value: function () {
       this._split.connect(this._leftDelay, 0);
       this._split.connect(this._rightDelay, 1);
-      this._leftGain.connect(this._rightDelay);
-      this._rightGain.connect(this._leftDelay);
+      this._leftFilter.connect(this._rightDelay);
+      this._rightFilter.connect(this._leftDelay);
     }
   },
 
   /**
-   * Public type parameter.
+   * Public parameters.
    */
 
   type: {
@@ -153,10 +173,6 @@ Delay.prototype = Object.create(null, {
     }
   },
 
-  /**
-   * Public delay parameter.
-   */
-
   delay: {
     enumerable: true,
     get: function () { return this._leftDelay.delayTime.value; },
@@ -166,16 +182,21 @@ Delay.prototype = Object.create(null, {
     }
   },
 
-  /**
-   * Public feedback parameter.
-   */
-
   feedback: {
     enumerable: true,
     get: function () { return this._leftGain.gain.value; },
     set: function (value) {
       this._leftGain.gain.setValueAtTime(value, 0);
       this._rightGain.gain.setValueAtTime(value, 0);
+    }
+  },
+
+  cutoff: {
+    enumerable: true,
+    get: function () { return this._leftFilter.frequency; },
+    set: function (value) {
+      this._leftFilter.frequency = value;
+      this._rightFilter.frequency = value;
     }
   }
 

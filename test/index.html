@@ -14,7 +14,8 @@
         , delay = new Delay(context, {
             type: 0,
             delay: 1.0,
-            feedback: 0.84
+            feedback: 0.42,
+            cutoff: 400
           });
 
       request.open("get", "human-voice.wav", true);
