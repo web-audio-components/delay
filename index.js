@@ -13,6 +13,7 @@ var Filter = require("filter");
  * @param {number} opts.type
  * @param {number} opts.delay
  * @param {number} opts.feedback
+ * @param {number} opts.dry
  */
 
 function Delay (context, opts) {
@@ -25,6 +26,7 @@ function Delay (context, opts) {
   opts.delay      = opts.delay    || p.delay.defaultValue;
   opts.feedback   = opts.feedback || p.feedback.defaultValue;
   opts.cutoff     = opts.cutoff   || p.cutoff.defaultValue;
+  opts.dry        = opts.dry      || p.dry.defaultValue;
 
   // Avoid positive feedback
   if (opts.feedback >= 1.0) {
@@ -40,6 +42,7 @@ function Delay (context, opts) {
   this._rightGain = context.createGainNode();
   this._leftFilter = new Filter.Lowpass(context, { frequency: opts.cutoff });
   this._rightFilter = new Filter.Lowpass(context, { frequency: opts.cutoff });
+  this._dry = context.createGainNode();
 
   // Assignment
   this._type = opts.type;
@@ -56,6 +59,9 @@ function Delay (context, opts) {
   this._rightGain.connect(this._rightFilter.input);
   this._merge.connect(this.output);
   this._route();
+
+  this.input.connect(this._dry);
+  this._dry.connect(this.output);
 }
 
 Delay.prototype = Object.create(null, {
@@ -112,6 +118,12 @@ Delay.prototype = Object.create(null, {
           min: 0,
           max: 22050,
           defaultValue: 8000,
+          type: "float"
+        },
+        dry: {
+          min: 0,
+          max: 1.0,
+          defaultValue: 1,
           type: "float"
         }
       }
@@ -197,6 +209,14 @@ Delay.prototype = Object.create(null, {
     set: function (value) {
       this._leftFilter.frequency = value;
       this._rightFilter.frequency = value;
+    }
+  },
+
+  dry: {
+    enumerable: true,
+    get: function () { return this._dry.gain.value; },
+    set: function (value) {
+      this._dry.gain.setValueAtTime(value);
     }
   }
 
