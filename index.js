@@ -13,6 +13,7 @@ var Filter = require("filter");
  * @param {number} opts.type
  * @param {number} opts.delay
  * @param {number} opts.feedback
+ * @param {number} opts.offset
  * @param {number} opts.dry
  */
 
@@ -27,6 +28,7 @@ function Delay (context, opts) {
   opts.feedback   = opts.feedback || p.feedback.defaultValue;
   opts.cutoff     = opts.cutoff   || p.cutoff.defaultValue;
   opts.dry        = opts.dry      || p.dry.defaultValue;
+  opts.offset     = opts.offset   || p.offset.defaultValue;
 
   // Avoid positive feedback
   if (opts.feedback >= 1.0) {
@@ -46,6 +48,7 @@ function Delay (context, opts) {
 
   // Assignment
   this._type = opts.type;
+  this._delayTime = opts.delay;
   this._leftDelay.delayTime.value = opts.delay;
   this._rightDelay.delayTime.value = opts.delay;
   this._leftGain.gain.value = opts.feedback;
@@ -118,6 +121,12 @@ Delay.prototype = Object.create(null, {
           min: 0,
           max: 22050,
           defaultValue: 8000,
+          type: "float"
+        },
+        offset: {
+          min: -0.5,
+          max: 0.5,
+          defaultValue: 0,
           type: "float"
         },
         dry: {
@@ -209,6 +218,22 @@ Delay.prototype = Object.create(null, {
     set: function (value) {
       this._leftFilter.frequency = value;
       this._rightFilter.frequency = value;
+    }
+  },
+
+  offset: {
+    enumerable: true,
+    get: function () { return this._offset; },
+    set: function (value) {
+      var offsetTime = this._delayTime + value;
+      this._offset = value;
+      if (value < 0) {
+        this._leftDelay.delayTime.setValueAtTime(offsetTime, 0);
+        this._rightDelay.delayTime.setValueAtTime(this._delayTime, 0);
+      } else {
+        this._leftDelay.delayTime.setValueAtTime(this._delayTime, 0);
+        this._rightDelay.delayTime.setValueAtTime(offsetTime, 0);
+      }
     }
   },
 
