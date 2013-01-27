@@ -3,14 +3,17 @@
  * Simple delay implementation for the Web Audio API.
  *
  * @param {AudioContext} context
- * @param {number} type
- * @param {number} delay
- * @param {number} feedback
+ * @param {object} opts
+ * @param {number} opts.type
+ * @param {number} opts.delay
+ * @param {number} opts.feedback
  */
 
-function Delay (context, type, delay, feedback) {
+function Delay (context, opts) {
   this.input = context.createGainNode();
   this.output = context.createGainNode();
+
+  var p = this.meta.params;
 
   // Internal AudioNodes
   this._split = context.createChannelSplitter(2);
@@ -26,14 +29,14 @@ function Delay (context, type, delay, feedback) {
   this._rightDelay.connect(this._rightGain);
   this._merge.connect(this.output);
 
-  this._type = ~~type || this.meta.params.type.defaultValue;
+  this._type = ~~opts.type || p.type.defaultValue;
   this._route();
 
   // Defaults
-  this._leftDelay.delayTime.value  = delay     || this.meta.params.delay.defaultValue;
-  this._rightDelay.delayTime.value = delay     || this.meta.params.delay.defaultValue;
-  this._leftGain.gain.value        = feedback  || this.meta.params.feedback.defaultValue;
-  this._rightGain.gain.value       = feedback  || this.meta.params.feedback.defaultValue;
+  this._leftDelay.delayTime.value  = opts.delay     || p.delay.defaultValue;
+  this._rightDelay.delayTime.value = opts.delay     || p.delay.defaultValue;
+  this._leftGain.gain.value        = opts.feedback  || p.feedback.defaultValue;
+  this._rightGain.gain.value       = opts.feedback  || p.feedback.defaultValue;
 
   // Avoid positive feedback
   if (this.feedback >= 1.0) {

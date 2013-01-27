@@ -24,12 +24,12 @@ For further examples, see the test files.
 
 ## API
 
-### Delay(context, type, delay, feedback)
+### Delay(context, options)
 
 Instantiate a Delay effect module. Expects an `AudioContext` as the first
 parameter.
 
-**Parameters**
+**Options**
 
 - `type` Delay type; 0: normal, 1: inverted, 2: ping pong.
 - `delay` Signal delay time in seconds.

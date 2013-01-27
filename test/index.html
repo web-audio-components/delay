@@ -11,7 +11,11 @@
       var context = new webkitAudioContext()
         , request = new XMLHttpRequest()
         , Delay = require("delay")
-        , delay = new Delay(context, 2, 1.0, 0.8);
+        , delay = new Delay(context, {
+            type: 0,
+            delay: 1.0,
+            feedback: 0.84
+          });
 
       request.open("get", "human-voice.wav", true);
       request.responseType = "arraybuffer";
