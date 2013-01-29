@@ -79,7 +79,7 @@ Delay.prototype = Object.create(null, {
 
   connect: {
     value: function (dest) {
-      this.output.connect(dest);
+      this.output.connect( dest.input ? dest.input : dest );
     }
   },
 
