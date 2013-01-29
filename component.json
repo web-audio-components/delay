@@ -4,6 +4,7 @@
   "description": "A simple delay/echo effect module for the Web Audio API.",
   "version": "0.0.6",
   "author": "Nick Thompson <ncthom91@gmail.com>",
+  "twitter": "@ncthom91",
   "keywords": [
     "web-audio",
     "delay",
