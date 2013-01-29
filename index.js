@@ -23,6 +23,7 @@ function Delay (context, opts) {
 
   // Defaults
   var p = this.meta.params;
+  opts            = opts || {};
   opts.type       = ~~opts.type   || p.type.defaultValue;
   opts.delay      = opts.delay    || p.delay.defaultValue;
   opts.feedback   = opts.feedback || p.feedback.defaultValue;
@@ -49,6 +50,7 @@ function Delay (context, opts) {
   // Assignment
   this._type = opts.type;
   this._delayTime = opts.delay;
+  this._offset = opts.offset;
   this._leftDelay.delayTime.value = opts.delay;
   this._rightDelay.delayTime.value = opts.delay;
   this._leftGain.gain.value = opts.feedback;
@@ -241,7 +243,7 @@ Delay.prototype = Object.create(null, {
     enumerable: true,
     get: function () { return this._dry.gain.value; },
     set: function (value) {
-      this._dry.gain.setValueAtTime(value);
+      this._dry.gain.setValueAtTime(value, 0);
     }
   }
 
