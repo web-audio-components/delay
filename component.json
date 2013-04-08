@@ -2,14 +2,13 @@
   "name": "delay",
   "repo": "web-audio-components/delay",
   "description": "A simple delay/echo effect module for the Web Audio API.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Nick Thompson <ncthom91@gmail.com>",
   "twitter": "@ncthom91",
   "keywords": [
     "web-audio",
     "delay",
-    "effect",
-    "new-keyword"
+    "effect"
   ],
   "dependencies": {
     "web-audio-components/filter": "*"
