@@ -18,8 +18,8 @@ var Filter = require("filter");
  */
 
 function Delay (context, opts) {
-  this.input = context.createGainNode();
-  this.output = context.createGainNode();
+  this.input = context.createGain();
+  this.output = context.createGain();
 
   // Defaults
   var p = this.meta.params;
@@ -39,13 +39,13 @@ function Delay (context, opts) {
   // Internal AudioNodes
   this._split = context.createChannelSplitter(2);
   this._merge = context.createChannelMerger(2);
-  this._leftDelay = context.createDelayNode();
-  this._rightDelay = context.createDelayNode();
-  this._leftGain = context.createGainNode();
-  this._rightGain = context.createGainNode();
+  this._leftDelay = context.createDelay();
+  this._rightDelay = context.createDelay();
+  this._leftGain = context.createGain();
+  this._rightGain = context.createGain();
   this._leftFilter = new Filter.Lowpass(context, { frequency: opts.cutoff });
   this._rightFilter = new Filter.Lowpass(context, { frequency: opts.cutoff });
-  this._dry = context.createGainNode();
+  this._dry = context.createGain();
 
   // Assignment
   this._type = opts.type;
